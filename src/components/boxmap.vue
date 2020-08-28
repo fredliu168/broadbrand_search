@@ -18,12 +18,12 @@
         <van-collapse-item :title="box_name" :name="box_name" icon="location-o">
           <van-cell-group v-for="(item_dev, dev_index) in cur_devs" :key="dev_index">
             <van-cell :value="item_dev.devname" />
+
             <van-cell
-              title="总端口数:"
+              title="剩余端口/总端口:"
               v-if="item_dev.total_portnum !== ''"
-              :value="item_dev.total_portnum"
+              :value="item_dev.port_num+'/'+item_dev.total_portnum"
             />
-            <van-cell title="剩余端口数:" v-if="item_dev.box_name !== ''" :value="item_dev.port_num" />
           </van-cell-group>
         </van-collapse-item>
       </van-collapse>
@@ -52,6 +52,11 @@
           >
             <van-cell-group v-for="(item_dev, dev_index) in list_devs" :key="dev_index">
               <van-cell :value="item_dev.devname" />
+              <van-cell
+                title="剩余端口/总端口:"
+                v-if="item_dev.total_portnum !== ''"
+                :value="item_dev.port_num+'/'+item_dev.total_portnum"
+              />
             </van-cell-group>
           </van-collapse-item>
         </van-collapse>

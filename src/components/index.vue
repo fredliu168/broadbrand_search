@@ -239,12 +239,14 @@
 
 <script>
 import $request from '@/../static/js/ajax-helper.js'
+import browser from '@/../static/js/checkbrowser.js'
 import { Dialog } from 'vant'
 import { Toast } from 'vant'
 import { Base64 } from 'js-base64'
 import { RadioGroup, Radio } from 'vant'
 import { Button } from 'vant'
 // const wx = require('weixin-js-sdk')
+//browser.versions.weixin
 export default {
   data() {
     return {
@@ -277,7 +279,7 @@ export default {
         zj_shequjingli_tel: '',
         res_id: '',
         add_latitude: '',
-        add_longitude: ''
+        add_longitude: '',
       },
       radio: '1',
       houseTypes: ['小区', '普通民宅', '聚类市场', '集团', '沿街商铺', '学校'],
@@ -289,11 +291,12 @@ export default {
       grid_name: '',
       showPickerGrid: false,
       btDisable: false,
-      systenid: '' //公安门牌ID
+      systenid: '', //公安门牌ID
     }
   },
 
   mounted() {
+    window.funFromjs = this.funFromjs //提供原生调用
     this.GetUserInfo() //获取用户信息
     var city = sessionStorage.getItem('g_sel_city')
 
@@ -328,10 +331,10 @@ export default {
       this.search_result_police =
         '匹配搜索结果：' + this.tableData_police.length + '条'
 
+    console.log(browser.versions.weixin)
     console.log(window.wx)
 
-    this.getWxApiInfo()
-
+    if (browser.versions.weixin) this.getWxApiInfo()
     //this.search_qrcode("4ABBEFA5-52AA-086C-E054-90E2BA54908C");//测试
   },
 
@@ -345,7 +348,7 @@ export default {
       $request.get(
         vm.url,
         null,
-        function(data) {
+        function (data) {
           //
           if (data.value.mobile !== undefined) {
             //企业号
@@ -354,10 +357,9 @@ export default {
             //app
             vm.GLOBAL.g_mobile = data.value.UserMobile
           }
-
           console.log(vm.GLOBAL.g_mobile)
         },
-        function(error_data) {
+        function (error_data) {
           vm.$message.error(error_data.message.substring(0, 120))
         }
       )
@@ -401,8 +403,8 @@ export default {
           MOBILE: self.managers[index].tel,
           USERNAME: self.managers[index].username,
           XIAOQU_NAME: self.areaName,
-          GONGAN_ADDRESS_ID: self.systenid
-        }
+          GONGAN_ADDRESS_ID: self.systenid,
+        },
       }
 
       console.log(data_json)
@@ -411,12 +413,12 @@ export default {
       $request.post(
         self.url_grid_add,
         data_json,
-        function(data) {
+        function (data) {
           console.log(data)
           self.$message.success('上报成功')
           self.btDisable = false
         },
-        function(error_data) {
+        function (error_data) {
           console.log(error_data)
           self.$message.error(error_data.message.substring(0, 120))
           self.btDisable = false
@@ -429,22 +431,22 @@ export default {
       var data_json = {
         os: 4,
         parameters: {
-          tel: self.GLOBAL.g_mobile
-        }
+          tel: self.GLOBAL.g_mobile,
+        },
       }
       $request.post(
         self.url_grid_manager,
         data_json,
-        function(data) {
+        function (data) {
           console.log(data)
           self.gridNames = []
           self.managers = data.value
-          self.managers.forEach(element => {
+          self.managers.forEach((element) => {
             self.gridNames.push(element.grid_name)
           })
           if (self.gridNames.length > 0) self.grid_name = self.gridNames[0]
         },
-        function(error_data) {
+        function (error_data) {
           console.log(error_data)
           // self.$message.error(error_data.message.substring(0, 120))
           self.$message.error('找不到网格，请确认您是否有网格权限')
@@ -489,7 +491,7 @@ export default {
           '/' +
           encodeURIComponent(box_name) +
           '/' +
-          encodeURIComponent(addr)
+          encodeURIComponent(addr),
       })
     },
     onClickLeft() {},
@@ -503,12 +505,12 @@ export default {
 
       var data_json = {
         site_name: 'broadband_search',
-        url: window.location.href
+        url: window.location.href,
       }
       $request.post(
         '@jsapi_wx',
         data_json,
-        function(data) {
+        function (data) {
           console.log(data)
           window.wx.config({
             beta: true, // 必须这么写，否则wx.invoke调用形式的jsapi会有问题
@@ -517,10 +519,10 @@ export default {
             timestamp: data.value.timestamp, // 必填，生成签名的时间戳
             nonceStr: data.value.nonceStr, // 必填，生成签名的随机串
             signature: data.value.signature, // 必填，签名，见附录1
-            jsApiList: ['scanQRCode'] // 必填，需要使用的JS接口列表，所有JS接口列表见附录2
+            jsApiList: ['scanQRCode'], // 必填，需要使用的JS接口列表，所有JS接口列表见附录2
           })
         },
-        function(error_data) {
+        function (error_data) {
           console.log(error_data)
           vm.$message.error(error_data.message.substring(0, 120))
           vm.finished = true
@@ -535,21 +537,21 @@ export default {
         var data_json = {
           os: 4,
           parameters: {
-            systenid: systenid //'4ABBEFA5-52AA-086C-E054-90E2BA54908C'
-          }
+            systenid: systenid, //'4ABBEFA5-52AA-086C-E054-90E2BA54908C'
+          },
         }
 
         Toast.loading({
           message: '搜索覆盖信息...',
           overlay: true,
           duration: 0,
-          forbidClick: true
+          forbidClick: true,
         })
 
         $request.post(
           vm.url_search_qr_query,
           data_json,
-          function(data) {
+          function (data) {
             console.log(data)
 
             if (data.value != '') {
@@ -583,7 +585,7 @@ export default {
 
             vm.finished = true
           },
-          function(error_data) {
+          function (error_data) {
             console.log(error_data)
             vm.$message.error(error_data.message.substring(0, 120))
             vm.finished = true
@@ -594,48 +596,82 @@ export default {
         this.loading = false
       }, 500)
     },
+
+    funFromjs(result) {
+      console.log(result)
+      var vm = this
+
+      Toast.loading({
+        message: '搜索门牌中...',
+        overlay: true,
+        duration: 0,
+        forbidClick: true,
+      })
+
+      $request.get(
+        '/@api_qrcode/com/QRCode?url=' + Base64.encode(result),
+        null,
+        function (data) {
+          Toast.clear()
+          vm.systenid = data.value.num
+          vm.search_qrcode(data.value.num)
+        },
+        function (error_data) {
+          console.log(error_data)
+          vm.$message.error(error_data.message.substring(0, 120))
+
+          Toast.clear()
+        }
+      )
+    },
+
     scan_qr() {
       //扫门牌二维码url_search_qr_query
       // 异步更新数据
       var vm = this
-      window.wx.scanQRCode({
-        desc: 'scanQRCode desc',
-        needResult: 1, // 默认为0，扫描结果由企业微信处理，1则直接返回扫描结果，
-        scanType: ['qrCode', 'barCode'], // 可以指定扫二维码还是一维码，默认二者都有
-        success: function(res) {
-          // 回调
-          console.log(res)
-          //vm.$message.error(res.resultStr);
 
-          Toast.loading({
-            message: '搜索门牌中...',
-            overlay: true,
-            duration: 0,
-            forbidClick: true
-          })
+      if (browser.versions.weixin) {
+        window.wx.scanQRCode({
+          desc: 'scanQRCode desc',
+          needResult: 1, // 默认为0，扫描结果由企业微信处理，1则直接返回扫描结果，
+          scanType: ['qrCode', 'barCode'], // 可以指定扫二维码还是一维码，默认二者都有
+          success: function (res) {
+            // 回调
+            console.log(res)
+            //vm.$message.error(res.resultStr);
 
-          $request.get(
-            '/@api_qrcode/com/QRCode?url=' + Base64.encode(res.resultStr),
-            null,
-            function(data) {
-              Toast.clear()
-              vm.systenid = data.value.num
-              vm.search_qrcode(data.value.num)
-            },
-            function(error_data) {
-              console.log(error_data)
-              vm.$message.error(error_data.message.substring(0, 120))
+            Toast.loading({
+              message: '搜索门牌中...',
+              overlay: true,
+              duration: 0,
+              forbidClick: true,
+            })
 
-              Toast.clear()
+            $request.get(
+              '/@api_qrcode/com/QRCode?url=' + Base64.encode(res.resultStr),
+              null,
+              function (data) {
+                Toast.clear()
+                vm.systenid = data.value.num
+                vm.search_qrcode(data.value.num)
+              },
+              function (error_data) {
+                console.log(error_data)
+                vm.$message.error(error_data.message.substring(0, 120))
+
+                Toast.clear()
+              }
+            )
+          },
+          error: function (res) {
+            if (res.errMsg.indexOf('function_not_exist') > 0) {
+              alert('版本过低请升级')
             }
-          )
-        },
-        error: function(res) {
-          if (res.errMsg.indexOf('function_not_exist') > 0) {
-            alert('版本过低请升级')
-          }
-        }
-      })
+          },
+        })
+      } else {
+        QZMCCJsBridge.callHandler('doScan', function (data) {}, 1)
+      }
     },
 
     change_qr_query() {
@@ -661,7 +697,7 @@ export default {
       if (this.city == '') {
         Dialog.alert({
           title: '提示',
-          message: '请选择区县'
+          message: '请选择区县',
         }).then(() => {
           // on close
         })
@@ -685,7 +721,7 @@ export default {
       if (this.addr.trim() == '' || this.addr.trim().length < 2) {
         Dialog.alert({
           title: '提示',
-          message: '请输入更详细的信息'
+          message: '请输入更详细的信息',
         }).then(() => {
           // on close
         })
@@ -699,7 +735,7 @@ export default {
       console.log(keywords_array)
       var keywords = ''
 
-      keywords_array.forEach(function(e) {
+      keywords_array.forEach(function (e) {
         if (e != '') keywords += '%' + e
       })
 
@@ -718,8 +754,8 @@ export default {
             v_country: vm.city,
             v_keyword: keywords, //"%" + vm.addr + "%",
             v_pageno: 1,
-            v_perpage: 1000
-          }
+            v_perpage: 1000,
+          },
         }
 
         console.log(data_json)
@@ -728,13 +764,13 @@ export default {
           message: '搜索中...',
           overlay: true,
           duration: 0,
-          forbidClick: true
+          forbidClick: true,
         })
 
         $request.post(
           vm.url_search_addr,
           data_json,
-          function(data) {
+          function (data) {
             console.log(data)
             vm.tableData = data.value.result_data
             vm.search_result = '匹配搜索结果：' + data.value.v_total + '条'
@@ -756,7 +792,7 @@ export default {
 
             vm.finished = true
           },
-          function(error_data) {
+          function (error_data) {
             console.log(error_data)
             vm.$message.error(error_data.message.substring(0, 120))
             vm.finished = true
@@ -766,8 +802,8 @@ export default {
 
         this.loading = false
       }, 500)
-    }
-  }
+    },
+  },
 }
 </script>
 

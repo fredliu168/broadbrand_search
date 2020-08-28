@@ -9,7 +9,7 @@ var g_addr_serach_params = {
   level2: '',
   level6: '',
   level7: '',
-  search_addr_keyword: ''
+  search_addr_keyword: '',
 }
 if (dev == 1) {
   //开发默认值
@@ -28,13 +28,13 @@ const g_countys = [
   '惠安县',
   '安溪县',
   '永春县',
-  '德化县'
+  '德化县',
 ]
 export default {
   g_countys,
   g_mobile,
   g_sel_country,
   api,
-  g_addr_serach_params
+  g_addr_serach_params,
 }
 </script>
