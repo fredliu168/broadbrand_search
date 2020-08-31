@@ -670,7 +670,38 @@ export default {
           },
         })
       } else {
-        QZMCCJsBridge.callHandler('doScan', function (data) {}, 1)
+        QZMCCJsBridge.callHandler(
+          'doScan',
+          function (data_ret) {
+            //ios 2020-08-31
+            //alert(data_ret)
+            Toast.loading({
+              message: '搜索门牌中...',
+              overlay: true,
+              duration: 0,
+              forbidClick: true,
+            })
+
+            //alert(data_ret)
+
+            $request.get(
+              '/@api_qrcode/com/QRCode?url=' + Base64.encode(data_ret),
+              null,
+              function (data) {
+                Toast.clear()
+                vm.systenid = data.value.num
+                vm.search_qrcode(data.value.num)
+              },
+              function (error_data) {
+                console.log(error_data)
+                vm.$message.error(error_data.message.substring(0, 120))
+
+                Toast.clear()
+              }
+            )
+          },
+          1
+        )
       }
     },
 
