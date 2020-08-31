@@ -1,5 +1,9 @@
 # broadbrand_search
 
+2020-8-31
+
+支持 iOS 扫码
+
 > A Vue.js project
 
 ## Build Setup
